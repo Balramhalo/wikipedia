@@ -3,14 +3,14 @@ from discord.ext import commands
 import wikipedia
 import os
 
+# Initialize bot
+bot = commands.Bot(command_prefix='w!')
+
 # Run the bot
 @bot.event
 async def on_ready():
     await bot.change_presence(activity=discord.Game(name="Wikipedia | w!help"))
     print("Bot is ready.")
-
-# Initialize bot
-bot = commands.Bot(command_prefix='w!')
 
 # Set up environment variable for token
 TOKEN = os.getenv("TOKEN")
