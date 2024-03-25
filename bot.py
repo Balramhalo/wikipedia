@@ -1,7 +1,6 @@
 import os
 import discord
 from discord.ext import commands
-from discord.ui import Button, View
 
 # Create bot instance
 bot = commands.Bot(command_prefix='.')
@@ -12,39 +11,31 @@ register_channel_id = 1216396741134389299  # Change this to your desired channel
 async def setup(ctx):
     embed = discord.Embed(
         title="Registration",
-        description="Click the button below to register.",
+        description="React with ✅ to register.",
         color=discord.Color.blue()
     )
-    view = View()
-    button = Button(label="Register", style=discord.ButtonStyle.primary)
-    view.add_item(button)
-    await ctx.send(embed=embed, view=view)
+    message = await ctx.send(embed=embed)
+    await message.add_reaction("✅")
 
 # Event: Bot is ready
 @bot.event
 async def on_ready():
     print(f'Logged in as {bot.user}')
 
-# Event: Interaction
+# Event: Reaction added
 @bot.event
-async def on_button_click(interaction):
-    if interaction.component.label == "Register":
-        await interaction.respond(
-            type=discord.InteractionType.ChannelMessageWithSource,
-            content="Please provide your information:"
-        )
-        registration_embed = discord.Embed(
-            title="Registration Form",
-            description="Please provide the following details:",
-            color=discord.Color.green()
-        )
-        registration_message = await interaction.channel.send(embed=registration_embed)
-
-        def check(message):
-            return message.author == interaction.user
-
+async def on_raw_reaction_add(payload):
+    if payload.channel_id == register_channel_id and payload.emoji.name == "✅":
+        channel = bot.get_channel(payload.channel_id)
+        message = await channel.fetch_message(payload.message_id)
+        if message.author == bot.user:
+            # Check if the reaction is added by the bot itself
+            return
+        
+        # Prompt user for information
+        await message.channel.send("Please provide your information:")
         try:
-            response_message = await bot.wait_for("message", check=check, timeout=300)  # Timeout after 5 minutes
+            response_message = await bot.wait_for("message", check=lambda m: m.author == payload.member, timeout=300)
             response_embed = discord.Embed(
                 title="Registration Details",
                 description=f"Name: {response_message.content}\nAge: {response_message.content}\nGender: {response_message.content}\nHobby: {response_message.content}",
@@ -54,9 +45,9 @@ async def on_button_click(interaction):
             registration_message = await register_channel.send(embed=response_embed)
             await registration_message.add_reaction("✅")  # Accept
             await registration_message.add_reaction("❌")  # Decline
-            await interaction.followup.send("Registration details have been submitted successfully.")
+            await message.channel.send("Registration details have been submitted successfully.")
         except asyncio.TimeoutError:
-            await interaction.followup.send("Registration timed out. Please try again.")
+            await message.channel.send("Registration timed out. Please try again.")
 
 # Run the bot
 bot.run(os.getenv('TOKEN'))
