@@ -29,7 +29,7 @@ async def search(ctx, *, query):
         page = wikipedia.page(query)
 
         # Get page summary, image, and URL
-        summary = wikipedia.summary(query, sentences=5)  # Increased to 5 sentences
+        summary = wikipedia.summary(query, sentences=8)  # Increased to 8 sentences
         image_url = page.images[0] if page.images else None
         wikipedia_url = page.url
 
@@ -53,7 +53,7 @@ async def search(ctx, *, query):
     except wikipedia.exceptions.PageError as e:
         await ctx.send(f"No Wikipedia page found for \"{query}\".")
     except Exception as e:
-        await ctx.send(f"An error occurred")
+        await ctx.send(f"An error occurred", search command is too busy try again.)
 
 # Command to get random Wikipedia article
 @bot.command()
