@@ -1,6 +1,7 @@
 import os
 import discord
 from discord.ext import commands
+from discord.ui import Button, View
 
 # Create bot instance
 bot = commands.Bot(command_prefix='.')
@@ -14,9 +15,9 @@ async def setup(ctx):
         description="Click the button below to register.",
         color=discord.Color.blue()
     )
-    register_button = discord.ui.Button(label="Register", style=discord.ButtonStyle.primary, custom_id="register")
-    view = discord.ui.View()
-    view.add_item(register_button)
+    view = View()
+    button = Button(label="Register", style=discord.ButtonStyle.primary)
+    view.add_item(button)
     await ctx.send(embed=embed, view=view)
 
 # Event: Bot is ready
@@ -27,7 +28,7 @@ async def on_ready():
 # Event: Interaction
 @bot.event
 async def on_button_click(interaction):
-    if interaction.custom_id == "register":
+    if interaction.component.label == "Register":
         await interaction.respond(
             type=discord.InteractionType.ChannelMessageWithSource,
             content="Please provide your information:"
@@ -38,7 +39,7 @@ async def on_button_click(interaction):
             color=discord.Color.green()
         )
         registration_message = await interaction.channel.send(embed=registration_embed)
-        
+
         def check(message):
             return message.author == interaction.user
 
