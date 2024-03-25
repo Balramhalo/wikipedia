@@ -1,3 +1,4 @@
+from keep_alive import keep_alive
 import discord
 from discord.ext import commands
 import wikipedia
@@ -111,6 +112,8 @@ async def help(ctx):
     embed.set_thumbnail(url=ctx.author.avatar_url)
 
     await ctx.send(embed=embed)
+
+keep_alive()
 
 # Run the bot
 bot.run(TOKEN)
