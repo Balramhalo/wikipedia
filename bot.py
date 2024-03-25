@@ -53,7 +53,7 @@ async def search(ctx, *, query):
     except wikipedia.exceptions.PageError as e:
         await ctx.send(f"No Wikipedia page found for \"{query}\".")
     except Exception as e:
-        await ctx.send(f"An error occurred", search command is too busy try again.)
+        await ctx.send(f"An error occurred, search command is too busy try again.")
 
 # Command to get random Wikipedia article
 @bot.command()
