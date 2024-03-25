@@ -1,60 +1,61 @@
+import os
 import discord
 from discord.ext import commands
-import os
 
-# Initialize bot with intents
-intents = discord.Intents.default()
-intents.messages = True
-intents.reactions = True
-bot = commands.Bot(command_prefix='w!', intents=intents)
+# Create bot instance
+bot = commands.Bot(command_prefix='.')
+register_channel_id = 1216396741134389299  # Change this to your desired channel ID
 
+# Command: setup
+@bot.command()
+async def setup(ctx):
+    embed = discord.Embed(
+        title="Registration",
+        description="Click the button below to register.",
+        color=discord.Color.blue()
+    )
+    register_button = discord.ui.Button(label="Register", style=discord.ButtonStyle.primary, custom_id="register")
+    view = discord.ui.View()
+    view.add_item(register_button)
+    await ctx.send(embed=embed, view=view)
+
+# Event: Bot is ready
 @bot.event
 async def on_ready():
     print(f'Logged in as {bot.user}')
 
-@bot.command()
-async def setup(ctx):
-    # Send a DM to the user
-    await ctx.author.send("Please provide your name, age, gender, and hobby in the following format:\nName: Your Name\nAge: Your Age\nGender: Your Gender\nHobby: Your Hobby")
+# Event: Interaction
+@bot.event
+async def on_button_click(interaction):
+    if interaction.custom_id == "register":
+        await interaction.respond(
+            type=discord.InteractionType.ChannelMessageWithSource,
+            content="Please provide your information:"
+        )
+        registration_embed = discord.Embed(
+            title="Registration Form",
+            description="Please provide the following details:",
+            color=discord.Color.green()
+        )
+        registration_message = await interaction.channel.send(embed=registration_embed)
+        
+        def check(message):
+            return message.author == interaction.user
 
-    # Wait for user's responses
-    def check(m):
-        return m.author == ctx.author and isinstance(m.channel, discord.DMChannel)
+        try:
+            response_message = await bot.wait_for("message", check=check, timeout=300)  # Timeout after 5 minutes
+            response_embed = discord.Embed(
+                title="Registration Details",
+                description=f"Name: {response_message.content}\nAge: {response_message.content}\nGender: {response_message.content}\nHobby: {response_message.content}",
+                color=discord.Color.blue()
+            )
+            register_channel = bot.get_channel(register_channel_id)
+            registration_message = await register_channel.send(embed=response_embed)
+            await registration_message.add_reaction("✅")  # Accept
+            await registration_message.add_reaction("❌")  # Decline
+            await interaction.followup.send("Registration details have been submitted successfully.")
+        except asyncio.TimeoutError:
+            await interaction.followup.send("Registration timed out. Please try again.")
 
-    try:
-        response = await bot.wait_for("message", check=check, timeout=60.0)
-    except asyncio.TimeoutError:
-        await ctx.author.send("You took too long to respond.")
-        return
-
-    # Parse user's responses
-    user_info = {}
-    lines = response.content.split('\n')
-    for line in lines:
-        key, value = line.split(': ', 1)  # Split each line into key-value pair
-        user_info[key.lower()] = value
-
-    # Send confirmation message
-    confirmation_message = await ctx.author.send("Are you sure you want to submit this information? Reply with 'yes' to confirm or 'no' to cancel.")
-
-    # Wait for user's confirmation
-    def confirm_check(m):
-        return m.author == ctx.author and isinstance(m.channel, discord.DMChannel) and m.content.lower() in ['yes', 'no']
-
-    try:
-        confirm_response = await bot.wait_for("message", check=confirm_check, timeout=60.0)
-    except asyncio.TimeoutError:
-        await ctx.author.send("You took too long to respond.")
-        return
-
-    if confirm_response.content.lower() == 'yes':
-        # Process the submitted information
-        await ctx.author.send("Information submitted successfully.")
-        # Perform further actions (e.g., assigning roles)
-    else:
-        await ctx.author.send("Operation canceled.")
-
-# Set up environment variable for token
-TOKEN = os.getenv("TOKEN")
-
-bot.run(TOKEN)
+# Run the bot
+bot.run(os.getenv('TOKEN'))
