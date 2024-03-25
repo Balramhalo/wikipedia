@@ -10,7 +10,7 @@ bot = commands.Bot(command_prefix='w!')
 # Run the bot
 @bot.event
 async def on_ready():
-    await bot.change_presence(activity=discord.Game(name="Wikipedia | w!help"))
+    await bot.change_presence(activity=discord.Game(name="w!invite | w!invite"))
     print("Bot is ready.")
 
 # Set up environment variable for token
@@ -53,7 +53,7 @@ async def search(ctx, *, query):
     except wikipedia.exceptions.PageError as e:
         await ctx.send(f"No Wikipedia page found for \"{query}\".")
     except Exception as e:
-        await ctx.send(f"An error occurred: {e}")
+        await ctx.send(f"An error occurred")
 
 # Command to get random Wikipedia article
 @bot.command()
@@ -113,6 +113,15 @@ async def help(ctx):
 
     await ctx.send(embed=embed)
 
+#  Custom commands command
+@bot.command()
+async def commands(ctx):
+    embed = discord.Embed(title="Wikipedia Bot Help", description="[Invite](https://discord.com/oauth2/authorize?client_id=1221381422204584018&permissions=2147797056&scope=bot+applications.commands) | [Support Server](https://discord.com/oauth2/authorize?client_id=1221381422204584018&permissions=2147797056&scope=bot+applications.commands) | [Vote](https://discord.com/oauth2/authorize?client_id=1221381422204584018&permissions=2147797056&scope=bot+applications.commands)\n\n- Default Prefix **:** `w!`\n- Usage **:** `w!command-name`\n\n> __**Wiki Commands**__\n`search`, `random`\n\n> __**Misc Commands**__\n`ping`, `invite`, `help`", color=discord.Color.blurple())
+
+    # Add user's thumbnail
+    embed.set_thumbnail(url=ctx.author.avatar_url)
+
+    await ctx.send(embed=embed)
 keep_alive()
 
 # Run the bot
