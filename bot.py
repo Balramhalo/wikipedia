@@ -1,59 +1,30 @@
-from keep_alive import keep_alive
+import os
 import discord
 from discord.ext import commands
 import openai
-import os
-from dotenv import load_dotenv
 
-# Load environment variables from .env file
-load_dotenv()
+# Set up Discord bot
+bot = commands.Bot(command_prefix='!')
 
-# Initialize your Discord bot with a prefix
-bot = commands.Bot(command_prefix=':')
+# Load OpenAI API key from environment variable
+openai.api_key = os.environ['OPENAI_API_KEY']
 
-# Set up your OpenAI API key
-openai.api_key = os.getenv('OPENAI_API_KEY')
+@bot.event
+async def on_ready():
+    print(f'Logged in as {bot.user}')
 
-# Command to list dishes based on ingredients
 @bot.command()
-async def dish(ctx, *, ingredients):
-    # Use ChatGPT to understand user input and generate a response
+async def ping(ctx):
+    await ctx.send('Pong!')
+
+@bot.command()
+async def ask(ctx, *, question):
     response = openai.Completion.create(
-        engine="text-davinci-003",
-        prompt=f"I want to make a dish with ingredients: {ingredients}.",
+        engine="davinci",
+        prompt=question + "\n",
         max_tokens=50
     )
-    
-    # Extract dish names from the response
-    dishes = response.choices[0].text.strip().split("\n")
-    
-    # Create an embed for displaying the list of dishes
-    embed = discord.Embed(title="Dishes made with {}".format(ingredients), color=discord.Color.green())
-    for dish in dishes:
-        embed.add_field(name="Dish", value=dish, inline=False)
-    
-    # Send the embed as a message
-    await ctx.send(embed=embed)
+    await ctx.send(response.choices[0].text.strip())
 
-# Command to list ingredients for a specific dish
-@bot.command()
-async def recipe(ctx, *, dish_name):
-    # Use ChatGPT to understand user input and generate a response
-    response = openai.Completion.create(
-        engine="text-davinci-003",
-        prompt=f"Ingredients for {dish_name}.",
-        max_tokens=50
-    )
-    
-    # Extract ingredients from the response
-    ingredients = response.choices[0].text.strip()
-    
-    # Create an embed for displaying the ingredients
-    embed = discord.Embed(title="Ingredients for {}".format(dish_name), description=ingredients, color=discord.Color.blue())
-    
-    # Send the embed as a message
-    await ctx.send(embed=embed)
-
-keep_alive()
-# Run the bot
-bot.run(os.getenv('TOKEN'))
+# Run the bot with the Discord token from environment variable
+bot.run(os.environ['TOKEN'])
