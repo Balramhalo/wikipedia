@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Initialize your Discord bot with a prefix
-bot = commands.Bot(command_prefix='r!')
+bot = commands.Bot(command_prefix=':')
 
 # Set up your OpenAI API key
 openai.api_key = os.getenv('OPENAI_API_KEY')
