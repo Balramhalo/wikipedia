@@ -20,7 +20,7 @@ async def ping(ctx):
 @bot.command()
 async def ask(ctx, *, question):
     response = openai.Completion.create(
-        engine="text-davinci-003",
+        engine="text-davinci",
         prompt=question + "\n",
         max_tokens=50
     )
