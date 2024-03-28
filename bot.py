@@ -25,7 +25,9 @@ async def ask(ctx, *, question):
         prompt=question + "\n",
         max_tokens=50
     )
-    await ctx.send(response.choices[0].text.strip())
+    # Send response in an embed
+    embed = discord.Embed(title="Answer", description=response.choices[0].text.strip(), color=0x00ff00)
+    await ctx.send(embed=embed)
 
 # Run the bot with the Discord token
 bot.run(os.environ['TOKEN'])
