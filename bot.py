@@ -3,12 +3,16 @@ import discord
 from discord.ext import commands
 import openai
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Initialize your Discord bot with a prefix
 bot = commands.Bot(command_prefix='r!')
 
 # Set up your OpenAI API key
-openai.api_key = os.getenv('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')
+openai.api_key = os.getenv('OPENAI_API_KEY')
 
 # Command to list dishes based on ingredients
 @bot.command()
@@ -51,6 +55,5 @@ async def recipe(ctx, *, dish_name):
     await ctx.send(embed=embed)
 
 keep_alive()
-
 # Run the bot
 bot.run(os.getenv('TOKEN'))
