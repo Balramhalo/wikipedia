@@ -6,8 +6,9 @@ import openai
 # Set up Discord bot
 bot = commands.Bot(command_prefix='!')
 
-# Load OpenAI API key from environment variable
-openai.api_key = os.environ['OPENAI_API_KEY']
+# Set up OpenAI model without requiring an API key
+openai.api_key = None  # Disable the need for an API key
+openai.api_base = "https://api.openai.com/v1"  # Set API base URL
 
 @bot.event
 async def on_ready():
@@ -20,11 +21,11 @@ async def ping(ctx):
 @bot.command()
 async def ask(ctx, *, question):
     response = openai.Completion.create(
-        engine="text-davinci",
+        engine="text-davinci-003",
         prompt=question + "\n",
         max_tokens=50
     )
     await ctx.send(response.choices[0].text.strip())
 
-# Run the bot with the Discord token from environment variable
+# Run the bot with the Discord token
 bot.run(os.environ['TOKEN'])
