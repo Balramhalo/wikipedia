@@ -12,10 +12,10 @@ client = commands.Bot(command_prefix="!", intents=intents)
 slash = SlashCommand(client, sync_commands=True)
 
 # API details
-API_URL = "https://blox-fruit-api.p.rapidapi.com/current_stock"
+API_URL = "https://blox-fruit-stock-fruit.p.rapidapi.com/check_stock"
 API_HEADERS = {
-    "X-RapidAPI-Key": "e56398d3aamsh2d2882a00a60e2cp15925bjsn4aae874b0887",
-    "X-RapidAPI-Host": "blox-fruit-api.p.rapidapi.com",
+    "x-rapidapi-key": "e56398d3aamsh2d2882a00a60e2cp15925bjsn4aae874b0887",
+    "x-rapidapi-host": "blox-fruit-stock-fruit.p.rapidapi.com",
 }
 
 @client.event
@@ -28,12 +28,11 @@ async def on_ready():
     description="Get the current stock of Blox Fruits."
 )
 async def bloxstock(ctx: SlashContext):
-    await ctx.defer()
+    await ctx.defer()  # Acknowledge the command
 
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get(API_URL, headers=API_HEADERS) as response:
-                response_text = await response.text()  # Log the full response text for debugging
                 if response.status == 200:
                     data = await response.json()
                     stock_list = data.get("stock", [])
@@ -51,8 +50,9 @@ async def bloxstock(ctx: SlashContext):
                     else:
                         await ctx.send("No fruits are currently in stock!")
                 else:
+                    error_body = await response.text()
                     await ctx.send(
-                        f"Failed to fetch stock data. HTTP Status: {response.status}\nDetails: {response_text}"
+                        f"Failed to fetch stock data. HTTP Status: {response.status}\nDetails: {error_body}"
                     )
     except Exception as e:
         await ctx.send(f"An error occurred: {e}")
