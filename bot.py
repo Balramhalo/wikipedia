@@ -58,5 +58,4 @@ async def bloxstock(ctx: SlashContext):
         await ctx.send(f"An error occurred: {e}")
 
 # Run the bot
-keep_alive()
 client.run(os.getenv("TOKEN"))
