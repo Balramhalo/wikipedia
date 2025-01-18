@@ -28,11 +28,12 @@ async def on_ready():
     description="Get the current stock of Blox Fruits."
 )
 async def bloxstock(ctx: SlashContext):
-    await ctx.defer()  # Acknowledge the command
+    await ctx.defer()
 
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get(API_URL, headers=API_HEADERS) as response:
+                response_text = await response.text()  # Log the full response text for debugging
                 if response.status == 200:
                     data = await response.json()
                     stock_list = data.get("stock", [])
@@ -50,8 +51,9 @@ async def bloxstock(ctx: SlashContext):
                     else:
                         await ctx.send("No fruits are currently in stock!")
                 else:
-                    # Debugging details in case of failure
-                    await ctx.send(f"Failed to fetch stock data. HTTP Status: {response.status}")
+                    await ctx.send(
+                        f"Failed to fetch stock data. HTTP Status: {response.status}\nDetails: {response_text}"
+                    )
     except Exception as e:
         await ctx.send(f"An error occurred: {e}")
 
