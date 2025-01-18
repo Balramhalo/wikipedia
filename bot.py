@@ -1,16 +1,15 @@
-
 import discord
 from discord.ext import commands
 from discord_slash import SlashCommand, SlashContext
 import aiohttp
 import os
 
-# Enable intents and initialize the bot
+# Initialize the bot
 intents = discord.Intents.default()
 intents.messages = True
 intents.guilds = True
-client = commands.Bot(command_prefix="!", intents=intents)  # Prefix is required even if using slash commands
-slash = SlashCommand(client, sync_commands=True)  # Sync ensures the commands are registered
+client = commands.Bot(command_prefix="!", intents=intents)
+slash = SlashCommand(client, sync_commands=True)
 
 # API details
 API_URL = "https://blox-fruit-api.p.rapidapi.com/current_stock"
@@ -19,13 +18,11 @@ API_HEADERS = {
     "X-RapidAPI-Host": "blox-fruit-api.p.rapidapi.com",
 }
 
-# Event when the bot is ready
 @client.event
 async def on_ready():
     print(f"{client.user} is now online!")
     await client.change_presence(status=discord.Status.online, activity=discord.Game(name="/bloxstock | Check stock!"))
 
-# Slash command for fetching Blox Fruits stock
 @slash.slash(
     name="bloxstock",
     description="Get the current stock of Blox Fruits."
@@ -53,6 +50,7 @@ async def bloxstock(ctx: SlashContext):
                     else:
                         await ctx.send("No fruits are currently in stock!")
                 else:
+                    # Debugging details in case of failure
                     await ctx.send(f"Failed to fetch stock data. HTTP Status: {response.status}")
     except Exception as e:
         await ctx.send(f"An error occurred: {e}")
